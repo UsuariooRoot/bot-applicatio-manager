@@ -1,0 +1,1374 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "willy-bot",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        940,
+        -20
+      ],
+      "id": "41ba8b91-4a97-4815-95d8-7c55d850e8c9",
+      "name": "Webhook",
+      "webhookId": "1ca86cef-4bbf-43f5-8da7-b4948b449ed9"
+    },
+    {
+      "parameters": {
+        "content": "## Extraer contenido textual del mensaje",
+        "height": 660,
+        "width": 1480,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1300,
+        -340
+      ],
+      "typeVersion": 1,
+      "id": "e41ca112-2ec8-49ad-81d8-85e4731677a1",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5b5e01b4-8f09-4e16-898e-7e65211e97cf",
+              "name": "instance.server_url",
+              "value": "={{ $json.body.server_url.includes('localhost') ? $json.body.server_url.replace(/localhost/i, 'evolution-api') : $json.body.server_url }}",
+              "type": "string"
+            },
+            {
+              "id": "545d94e7-b51e-4cac-867c-fa232bb14813",
+              "name": "instance.name",
+              "value": "={{ $json.body.instance }}",
+              "type": "string"
+            },
+            {
+              "id": "a8936825-c345-4b9a-8638-2b2af830f3af",
+              "name": "instance.apikey",
+              "value": "={{ $json.body.apikey }}",
+              "type": "string"
+            },
+            {
+              "id": "8fe2d975-8af9-4c71-a867-b7056f311c0c",
+              "name": "message.id",
+              "value": "={{ $json.body.data.key.id }}",
+              "type": "string"
+            },
+            {
+              "id": "29690266-4d28-404b-a32d-6b4eaf1e01eb",
+              "name": "message.chat_id",
+              "value": "={{ $json.body.data.key.remoteJid }}",
+              "type": "string"
+            },
+            {
+              "id": "177822b0-5f54-446d-89a3-0a1f386497bf",
+              "name": "message.user.name",
+              "value": "={{ $json.body.data.pushName || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "4725c34c-f9d0-406b-ae98-eedf3eaa488f",
+              "name": "message.user.number",
+              "value": "={{ $json.body.data.key.remoteJid.split('@')[0] }}",
+              "type": "string"
+            },
+            {
+              "id": "771aef3c-c598-4dac-9651-30e4be9a219e",
+              "name": "message.content_type",
+              "value": "={{ $json.body.data.message.extendedTextMessage ? 'text' : '' }}{{ $json.body.data.message.conversation ? 'text' : '' }}{{ $json.body.data.message.imageMessage ? 'image' : '' }}{{ $json.body.data.message.audioMessage ? 'audio' : '' }}",
+              "type": "string"
+            },
+            {
+              "id": "10b4d343-565a-4d13-b27e-97c82a5a1bb7",
+              "name": "message.content",
+              "value": "={{ $json.body.data.message.extendedTextMessage || '' }}{{ $json.body.data.message.imageMessage?.caption || '' }}{{ $json.body.data.message.conversation || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "b78c21d9-9465-403e-9c78-bad3ec09f265",
+              "name": "message.timestamp",
+              "value": "={{ $json.body.date_time.toDateTime().plus(3, 'hours').toLocal() }}",
+              "type": "string"
+            },
+            {
+              "id": "0bf6ef90-a102-423c-a8e5-fee6143ef5cf",
+              "name": "session.id",
+              "value": "={{ $json.body.data.key.remoteJid }}",
+              "type": "string"
+            },
+            {
+              "id": "0c674d0f-92c0-420c-86d2-de233bcec16b",
+              "name": "session.timestamp",
+              "value": "={{ $now }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1140,
+        -20
+      ],
+      "id": "e36ff4e0-b67a-4001-90e9-f3c67041a6b5",
+      "name": "Transform Data",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.content_type }}",
+                    "rightValue": "image",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "4d243590-ffcd-41eb-b2dd-7b607690b71d"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Image"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c257961f-8b9e-45ec-80b0-bc42c7c2da76",
+                    "leftValue": "={{ $json.message.content_type }}",
+                    "rightValue": "audio",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Audio"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b9244a43-c594-42f9-9627-0f90802b0b86",
+                    "leftValue": "={{ $json.message.content_type }}",
+                    "rightValue": "text",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Text"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "Default"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1360,
+        -40
+      ],
+      "id": "9bc12f40-b3b9-4072-9872-baf14cc14bbe",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "base64",
+        "options": {
+          "mimeType": "={{ $json.mimetype }}"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1880,
+        -240
+      ],
+      "id": "3cc849fd-9b01-41e6-bdfe-903a76ca1067",
+      "name": "Convert to Image"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "base64",
+        "options": {
+          "mimeType": "={{ $json.mimetype }}"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1880,
+        -60
+      ],
+      "id": "41ba8aac-ac92-41e6-a45d-98cd5c635e1b",
+      "name": "Convert to Audio"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.instance.server_url }}/chat/getBase64FromMediaMessage/{{ $json.instance.name }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $json.instance.apikey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "message.key.id",
+              "value": "={{ $json.message.id }}"
+            },
+            {
+              "name": "convertToMp4",
+              "value": "={{ Boolean(false) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1660,
+        -240
+      ],
+      "id": "65daef0e-0a22-4f00-a8ce-0b4ce16f7828",
+      "name": "Get Image"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.instance.server_url }}/chat/getBase64FromMediaMessage/{{ $json.instance.name }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $json.instance.apikey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "message.key.id",
+              "value": "={{ $json.message.id }}"
+            },
+            {
+              "name": "convertToMp4",
+              "value": "={{ Boolean(false) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1660,
+        -60
+      ],
+      "id": "f9f8e0da-3d94-45b1-9079-3ce08dcae8bd",
+      "name": "Get Audio"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a75cf385-6243-41a2-94f0-84827603a2a4",
+              "name": "content",
+              "value": "=<image>\n{{ $json.content }}\n</image>",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2320,
+        -240
+      ],
+      "id": "1a81248d-33b9-49fb-bc70-32e5c005da13",
+      "name": "Image Content"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "156accc3-ef3f-4576-82f8-adba1482841c",
+              "name": "content",
+              "value": "=<audio>\n{{ $json.text }}\n</audio>",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2320,
+        -60
+      ],
+      "id": "5100f769-db6a-4401-8d73-5556511a8473",
+      "name": "Audio Content"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "156accc3-ef3f-4576-82f8-adba1482841c",
+              "name": "content",
+              "value": "=<text>\n{{ $json.message.content }}\n</text>",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2320,
+        120
+      ],
+      "id": "08cea42c-90c2-44e0-8909-f07bf95764a1",
+      "name": "Text Content"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "buffer_messages",
+        "key": "={{ $('Transform Data').item.json.message.chat_id }}",
+        "keyType": "string",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        3680,
+        -60
+      ],
+      "id": "c9fad62a-57cb-43c1-9e16-166cc4ac3daa",
+      "name": "Get Buffer",
+      "credentials": {
+        "redis": {
+          "id": "RmRJavHs9VONcQbW",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cf9834c1-cdb6-4ab0-b0cb-8516a0be95c2",
+              "leftValue": "={{ $json.buffer_messages }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3040,
+        -60
+      ],
+      "id": "6d37c135-5b1b-4a9c-901d-ea634af14dc5",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "07da9ce9-586e-4e7f-a175-ba497322fcbf",
+              "name": "content",
+              "value": "={{ $json.content }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2640,
+        -60
+      ],
+      "id": "00a088bc-fdbb-4fb1-a98f-27bfd0409c7d",
+      "name": "Set content"
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "={{ $('Transform Data').item.json.message.chat_id }}",
+        "value": "={{\nJSON.stringify(\n{\n  ...$json.buffer_messages,\n  last_message: {\n    id: $('Transform Data').item.json.message.id,\n    timestamp: $('Transform Data').item.json.message.timestamp\n  },\n  message_queue: [\n    ...$json.buffer_messages.message_queue,\n    {\n      id: $('Transform Data').item.json.message.id,\n      content: $('Set content').item.json.content\n    }\n  ]\n}\n)\n}}\n",
+        "keyType": "string"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        3440,
+        -180
+      ],
+      "id": "b61f3fd2-a2fd-488b-8c13-261818624f88",
+      "name": "Update Buffer",
+      "credentials": {
+        "redis": {
+          "id": "RmRJavHs9VONcQbW",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "={{ $('Transform Data').item.json.message.chat_id }}",
+        "value": "={{\nJSON.stringify(\n{\n  current_message: {\n    id: $('Transform Data').item.json.message.id,\n    timestamp: $('Transform Data').item.json.message.timestamp\n  },\n  last_message: {\n    id: $('Transform Data').item.json.message.id,\n    timestamp: $('Transform Data').item.json.message.timestamp,\n  },\n  message_queue: [\n    {\n      id: $('Transform Data').item.json.message.id,\n      content: $('Set content').item.json.content\n    }\n  ],\n  isActive: false\n}\n)\n}}",
+        "keyType": "string"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        3440,
+        20
+      ],
+      "id": "9e6fff41-8e2f-4e6a-929a-a675ff6107ed",
+      "name": "Add Buffer",
+      "credentials": {
+        "redis": {
+          "id": "RmRJavHs9VONcQbW",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Razonamiento empleado para implementar un buffer de mensajes\n\n1. Primero obtengo el valor de alguna clave, en este caso, la clave es un numero de telófono, el value es un json string con esta estructura:\n```json\n{\n  currentMessage: {\n    id: string,\n    timestamp: date_string\n  },\n  lastMessage:  {\n    id: string,\n    timestamp: date_string\n  },\n  messageQueue: [\n    {\n      id: string,\n      content: string,\n    }\n  ],\n  isActive: false\n}\n```\n\n2. Con un if verifico si esta nulo (string vacio), de ser asi creo la estructura anterior y la guardo. Si no esta vacio, entonces parseo el string, y actualizo algunos valores, como el **lastMessage**(id y timestamp del nuevo mensaje) y **messageQueue**(agregando el nuevo mensaje).\n\n3. En el siguiente recupero value agregado o actualizado anteriormente. Esto lo hago para trabajar con los datos establecidos en redis.\n\n4. En el switch tengo esta condiciones:\n- 1ra condicion: si currentMessage y el lastMessage son el mismo y han pasado 10 segundos desde dicho mensaje seguimos el camino \"Continue\". Se usará para continuar el flujo, es decir ya paso el tiempo suficiente y no se ha escrito ningun mensaje.\n- 2da condicion: si isActive es true seguimos el camino \"Nothing\". Condicion para no hacer nada, ya que de seguro hay un tiempo de espera activa.\n- Fallback: se da sin importar si currentMessage y lastMessage son diferentes y no tiene que haber un tiempo de espera activo(\"isActive\": false), seguidamente un nodo actualiza el valor de **isActive** a **true** y **currentMessage** con los **datos del ultimo mensaje**, y le continua un nodo wait, quien calcula el tiempo que paso desde el ultimo mensaje (**lastMessage.timestamp**) hasta ahora ($now) y se lo resta a 10. Pasado ese tiempo continuo con los dos siguientes nodos que tratan de actualizar el value, cambiando la propiedad isActive a false para indicar que ya no hay un tiempo de espera. Finalmente regresa al nodo(\"Get buffer\") que recuperaba el value de una key para trabajar con los datos establecidos.\n\nDe esta forma llega el primer mensaje, se guarda y entran en el fallback coloca \"isActive\" a true. Digamos que va a esperar 10 seg. Y durante esa espera van a llegar nuevos mensajes que actualizarán lastMessage, messageQueue, pero al llegar al nodo switch entrarán en la 2da condicion y no haran nada ya que hay un tiempo de espera(un nodo wait) activo. Luego de los 10 seg, cambiamos isActive a false y volvemos al nodo que recupera el value y para cuando llegue en el switch no podra entrar en la primera condicion ya que el id de currentMessage y el id de lastMessage son diferentes, tampoco entran en la segunda ya que isActive es false entonces continua por el fallback, quien actualiza el currentMessage con el lastMessage y pone isActive a true, tal vez ya hayan pasado 6 segundos desde ese el ultimo mensaje pero por eso hice que el wait haga esa resta, en este caso 10 - 6 y entonces esperara solo 4 segundos.",
+        "height": 940,
+        "width": 980,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2940,
+        -1340
+      ],
+      "id": "0a631fb3-3158-4372-bf6f-dad483a73f68",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "buffer_messages",
+        "key": "={{ $('Transform Data').item.json.message.chat_id }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        2840,
+        -60
+      ],
+      "id": "8c4eb6ff-7357-4d42-8c28-d5852f90e973",
+      "name": "Get Value",
+      "credentials": {
+        "redis": {
+          "id": "RmRJavHs9VONcQbW",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1660,
+        160
+      ],
+      "id": "8a63d57a-1ddc-4672-8189-3e269efaefd3",
+      "name": "Ignore"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        4340,
+        -60
+      ],
+      "id": "59a46de0-eed7-48ad-ba6e-727796e95454",
+      "name": "Do nothing"
+    },
+    {
+      "parameters": {
+        "amount": "={{ \nMath.abs(11 - parseInt(($now - $json.buffer_messages.last_message.timestamp.toDateTime()) / 1000))\n}}"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        4540,
+        200
+      ],
+      "id": "1f238c50-9fb9-4d53-a84e-e9a04bf4a510",
+      "name": "Wait",
+      "webhookId": "9d93634b-ad22-4164-ba27-8f4453d86b51"
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "={{ $('Transform Data').item.json.message.chat_id }}",
+        "value": "={{\nJSON.stringify(\n  {\n    ...$json.buffer_messages,\n    current_message: $json.buffer_messages.last_message,\n    isActive: true,\n  }\n)\n}}",
+        "keyType": "string"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        4340,
+        100
+      ],
+      "id": "a01fe087-7a55-4d9a-97ed-417cf676bdb9",
+      "name": "Update state and Active",
+      "credentials": {
+        "redis": {
+          "id": "RmRJavHs9VONcQbW",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "={{ $('Transform Data').item.json.message.chat_id }}",
+        "value": "={{\nJSON.stringify(\n  {\n    ...$json.buffer_messages.parseJson(),\n    isActive: false,\n  }\n)\n}}",
+        "keyType": "string"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        4900,
+        200
+      ],
+      "id": "72a026cf-7cb8-4d63-83d1-30f4ed2bd954",
+      "name": "Desactive",
+      "credentials": {
+        "redis": {
+          "id": "RmRJavHs9VONcQbW",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "buffer_messages",
+        "key": "={{ $('Transform Data').item.json.message.chat_id }}",
+        "keyType": "string",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        4720,
+        200
+      ],
+      "id": "a70e7a9e-a9e8-4a54-9bb7-5de7d0cbbdc4",
+      "name": "Redis",
+      "credentials": {
+        "redis": {
+          "id": "RmRJavHs9VONcQbW",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return { buffer_messages: JSON.parse($input.first().json.buffer_messages) };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3880,
+        -60
+      ],
+      "id": "4e48774f-a817-4fe3-ae63-b32ad79b765d",
+      "name": "Parse Object"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "={{ $('Transform Data').item.json.message.chat_id }}"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        4340,
+        -240
+      ],
+      "id": "2ac3e48d-02b6-425e-a09e-d07f0501f35e",
+      "name": "Delete buffer",
+      "credentials": {
+        "redis": {
+          "id": "RmRJavHs9VONcQbW",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "text": "=Describe la imagen.",
+        "inputType": "base64",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        2100,
+        -240
+      ],
+      "id": "5ee73c8d-173a-4c1b-8a00-2ed198779170",
+      "name": "Analize image",
+      "credentials": {
+        "openAiApi": {
+          "id": "qPNRLkomzqLtf9Wl",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        2100,
+        -60
+      ],
+      "id": "db4cd5cf-423b-4ac6-9481-e9c24c870c08",
+      "name": "Transcribe recording",
+      "credentials": {
+        "openAiApi": {
+          "id": "qPNRLkomzqLtf9Wl",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return { buffer_messages: JSON.parse($input.first().json.buffer_messages) };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3260,
+        -180
+      ],
+      "id": "832ffaf1-3c12-4f93-b45f-c6a5511514b8",
+      "name": "JSON parse"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Transform Data').item.json.instance.server_url }}/message/sendText/{{ $('Transform Data').item.json.instance.name }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $('Transform Data').item.json.instance.apikey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $('Transform Data').item.json.message.user.number }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.output }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5080,
+        -240
+      ],
+      "id": "2038f16d-1fd1-4a3f-94ae-dd78eed7417f",
+      "name": "Send reply"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.buffer_messages.message_queue.map(item => item.content).join(\"\") }}",
+        "options": {
+          "systemMessage": "=Eres un bot de whatsapp llamado Willy que ayuda con el registro y seguimiento de postulaciones a oferta de trabajo.\n\nNumero de telefono del usuario: {{ $('Transform Data').item.json.message.user.number }}\nEl usuario se llama {{ $('Transform Data').item.json.message.user.name.isEmpty() ? 'unknow' : $('Transform Data').item.json.message.user.name }}.\nHoy es {{ $now }}. Zona horaria: America/Lima (UTC-5)\n\nEstas son las tareas, que por ahora puedes hacer, con las determinada herramienta que puedes usar:\n- Registrar una postulación: Save Application\n- Consultar postulaciones: Consult Applications\n\nSi el mensaje es ambiguo o no se entiende qué desea el usuario, pídele amablemente que aclare su intención y coméntale que es lo que puedes hacer(tu alcance).\nNo devuelvas estructuras técnicas, ni generes JSON. Tu única salida debe ser una respuesta conversacional humana y breve, usando emojis solo cuando sea apropiado.\nSi el usuario no tiene nombre('unknow') llámalo de otra forma como, por ejemplo, estimado/a. No lo etiquetes con algun género o edad a no ser que este mismo te lo haya mencionado en su contexto de conversación.\nNo menciones que eres un bot, no respondas como si tuvieras vida propia, se discreto o comentale al usuario que no puedes brindarle cierto tipo de información comprometedora.\n\nEjemplo de respuesta al guardar una postulación:\n📄 Tu postulación para el cargo de **Desarrollador Backend** en **Acme Corp** ha sido registrada exitosamente el **29 de junio de 2025 a las 10:34 AM**.\nHe guardado la siguiente información:\n- **Título del puesto**: Desarrollador Backend\n- **Empresa**: Acme Corp\n- **Plataforma**: LinkedIn\n- **Estado inicial**: Postulado\n- ...otros campos(ignora los que sean sensibles o irrelevantes)\nPuedes ver los detalles completos aquí: https://jobapp.com/applications/{id-registro}\n\nJSON para registrar una postulación, las propiedades con el signo \"?\" son opcionales:\n{\n  phone_number: string(numero de telefono del usuario),\n  company: string,\n  role: string,\n  salary?: string (incluye el simbolo de la moneda, si aplica),\n  platform: string,\n  status: \"Postulado\",\n  contact?: string(algun correo o numero del recruiter, si hubiese),\n  jobUrl: <enlace de oferta de trabajo que el usuario adjunto>,\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        4640,
+        -240
+      ],
+      "id": "3bc1d9d4-9208-4972-9c21-de69b824657e",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Transform Data').item.json.message.chat_id }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        4700,
+        0
+      ],
+      "id": "04787d28-9413-43ca-8b5c-6ea126a952c1",
+      "name": "Memory",
+      "credentials": {
+        "postgres": {
+          "id": "yt5iGCY0ZBCGITuQ",
+          "name": "Postgres - Job Tracker"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        4580,
+        0
+      ],
+      "id": "6ab5b53e-5d6e-48a4-94e8-07f109c86eb7",
+      "name": "OpenAI LLM model",
+      "credentials": {
+        "openAiApi": {
+          "id": "qPNRLkomzqLtf9Wl",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.buffer_messages.current_message.id === $json.buffer_messages.last_message.id && parseInt(($now - $json.buffer_messages.last_message.timestamp.toDateTime()) / 1000) >= 10 }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "id": "4c91d25e-44ab-486b-ab5b-3d7dcac79218"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Continue"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "9796ea15-9027-4a08-8da2-e5db61d402a8",
+                    "leftValue": "={{ $json.buffer_messages.isActive }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Nothing"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        4080,
+        -60
+      ],
+      "id": "b1d73145-1c84-49a8-a2bf-3a2d8b6a1e1e",
+      "name": "Buffer logic"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Herramienta para registrar una postulación",
+        "method": "POST",
+        "url": "http://127.0.0.1:8000/applications",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('JSON', `JSON para registrar una postulación`, 'json') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        5020,
+        0
+      ],
+      "id": "559d9a10-c5c9-4b79-85c3-a2ca1b491b7b",
+      "name": "Save Application"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Herramienta para recuperar todos las postulaciones de un usuario",
+        "url": "=http://127.0.0.1:8000/applications?phone_number={{ $('Transform Data').item.json.message.user.number }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        4860,
+        0
+      ],
+      "id": "cafc0fce-d859-41b5-9187-ff828194e181",
+      "name": "Consult Applications"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Usa esta herramienta para obtener informacion de una oferta de trabajo a la que el usuario quiere postular",
+        "method": "POST",
+        "url": "http://127.0.0.1:8000/scrape",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "source",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', `Url de la oferta de trabajo`, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        5200,
+        0
+      ],
+      "id": "63d42502-1ff8-48c3-b3d4-79c264348863",
+      "name": "HTTP Request"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Transform Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform Data": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Get Image",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Audio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Text Content",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ignore",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to Image": {
+      "main": [
+        [
+          {
+            "node": "Analize image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to Audio": {
+      "main": [
+        [
+          {
+            "node": "Transcribe recording",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Image": {
+      "main": [
+        [
+          {
+            "node": "Convert to Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Audio": {
+      "main": [
+        [
+          {
+            "node": "Convert to Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image Content": {
+      "main": [
+        []
+      ]
+    },
+    "Audio Content": {
+      "main": [
+        []
+      ]
+    },
+    "Text Content": {
+      "main": [
+        [
+          {
+            "node": "Set content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Buffer": {
+      "main": [
+        [
+          {
+            "node": "Parse Object",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "JSON parse",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add Buffer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set content": {
+      "main": [
+        [
+          {
+            "node": "Get Value",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Buffer": {
+      "main": [
+        [
+          {
+            "node": "Get Buffer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Buffer": {
+      "main": [
+        [
+          {
+            "node": "Get Buffer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Value": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Redis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update state and Active": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Desactive": {
+      "main": [
+        [
+          {
+            "node": "Get Buffer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis": {
+      "main": [
+        [
+          {
+            "node": "Desactive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Object": {
+      "main": [
+        [
+          {
+            "node": "Buffer logic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete buffer": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analize image": {
+      "main": [
+        [
+          {
+            "node": "Image Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe recording": {
+      "main": [
+        [
+          {
+            "node": "Audio Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JSON parse": {
+      "main": [
+        [
+          {
+            "node": "Update Buffer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Send reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI LLM model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buffer logic": {
+      "main": [
+        [
+          {
+            "node": "Delete buffer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update state and Active",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Application": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consult Applications": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "07e06ca79d1d7a35f0cc72829f3503328f9d86c5206c5b76d8ba620cefa254d4"
+  }
+}
