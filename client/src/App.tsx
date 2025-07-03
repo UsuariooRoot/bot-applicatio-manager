@@ -81,6 +81,7 @@ const AppContent: React.FC = () => {
       {detailApplicationId && (
         <ApplicationDetail
           applicationId={detailApplicationId}
+          phoneNumber={phoneNumber}
           onClose={handleDetailClose}
           onEdit={(app) => {
             handleDetailClose();

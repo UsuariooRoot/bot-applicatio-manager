@@ -5,12 +5,14 @@ import { useApplications } from '../context/ApplicationContext';
 
 interface ApplicationDetailProps {
   applicationId: string;
+  phoneNumber: string;
   onClose: () => void;
   onEdit: (application: Application) => void;
 }
 
 export const ApplicationDetail: React.FC<ApplicationDetailProps> = ({
   applicationId,
+  phoneNumber,
   onClose,
   onEdit,
 }) => {
@@ -21,7 +23,7 @@ export const ApplicationDetail: React.FC<ApplicationDetailProps> = ({
   useEffect(() => {
     const loadApplication = async () => {
       try {
-        const app = await getApplicationById(applicationId);
+        const app = await getApplicationById(applicationId, phoneNumber);
         setApplication(app);
       } catch (error) {
         console.error('Error loading application details:', error);

@@ -12,7 +12,7 @@ interface ApplicationContextType {
   createApplication: (data: CreateApplicationData) => Promise<void>;
   updateApplication: (id: string, data: Partial<CreateApplicationData>) => Promise<void>;
   deleteApplication: (id: string) => Promise<void>;
-  getApplicationById: (id: string) => Promise<Application>;
+  getApplicationById: (id: string, phoneNumber: string) => Promise<Application>;
 }
 
 const ApplicationContext = createContext<ApplicationContextType | undefined>(undefined);
@@ -99,9 +99,9 @@ export const ApplicationProvider: React.FC<ApplicationProviderProps> = ({ childr
     }
   };
 
-  const getApplicationById = async (id: string): Promise<Application> => {
+  const getApplicationById = async (id: string, phoneNumber: string): Promise<Application> => {
     try {
-      return await apiService.getApplicationById(id);
+      return await apiService.getApplicationById(id, phoneNumber);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error fetching application details');
       throw err;

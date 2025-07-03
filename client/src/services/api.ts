@@ -32,8 +32,8 @@ class ApiService {
     return this.fetchData<Application[]>(`/applications?phone_number=${phoneNumber}`);
   }
 
-  async getApplicationById(id: string): Promise<Application> {
-    return this.fetchData<Application>(`/applications/${id}`);
+  async getApplicationById(id: string, phoneNumber: string): Promise<Application> {
+    return this.fetchData<Application>(`/applications/${id}?phone_number=${phoneNumber}`);
   }
 
   async createApplication(data: CreateApplicationData): Promise<Application> {
