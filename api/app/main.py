@@ -1,6 +1,5 @@
 from fastapi import FastAPI, HTTPException, Query, Path
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 from typing import Optional, List
 import uvicorn
 from datetime import datetime, timezone
@@ -217,6 +216,12 @@ class ApplicationService:
     async def get_applications_by_phone(self, phone_number: str) -> List[ApplicationResponse]:
         applications = await self.repository.find_by_phone_number(phone_number)
         return [ApplicationResponse(**app) for app in applications]
+    
+    async def get_application_by_id(self, id: str, phone_number: str) -> ApplicationResponse:
+        application = await self.repository.find_by_id(id)
+        if application and application['phone_number'] == phone_number:
+            return application
+        raise HTTPException(status_code=404, detail="Application not found")
 
     async def create_application(self, application: ApplicationCreate) -> ApplicationResponse:
         application_dict = application.model_dump()
@@ -269,6 +274,15 @@ async def get_applications(
     """Recupera todas las postulaciones activas por número de teléfono"""
     service = get_application_service()
     return await service.get_applications_by_phone(phone_number)
+
+@app.get("/applications/{application_id}", response_model=ApplicationResponse)
+async def get_applications(
+    application_id: str = Path(..., description="ID de la postulación"),
+    phone_number: str = Query(..., description="Número de teléfono del usuario")
+):
+    """Recupera una postulacion activa por su id y un número de teléfono"""
+    service = get_application_service()
+    return await service.get_application_by_id(id=application_id, phone_number=phone_number)
 
 @app.post("/applications", response_model=ApplicationResponse)
 async def create_application(application: ApplicationCreate):
