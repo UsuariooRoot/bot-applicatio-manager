@@ -143,7 +143,7 @@ export const ApplicationDetail: React.FC<ApplicationDetailProps> = ({
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Salario</p>
                   <p className="font-semibold text-gray-900 dark:text-white">
-                    ${parseInt(application.salary).toLocaleString()}
+                    {application.salary}
                   </p>
                 </div>
               </div>

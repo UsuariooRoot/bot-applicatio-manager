@@ -143,7 +143,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                 Salario *
               </label>
               <input
-                type="number"
+                type="text"
                 id="salary"
                 name="salary"
                 value={formData.salary}

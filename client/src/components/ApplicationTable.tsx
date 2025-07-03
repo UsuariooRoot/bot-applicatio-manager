@@ -146,7 +146,7 @@ export const ApplicationTable: React.FC<ApplicationTableProps> = ({
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-gray-900 dark:text-white">
-                      ${parseInt(app.salary).toLocaleString()}
+                      {app.salary}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
